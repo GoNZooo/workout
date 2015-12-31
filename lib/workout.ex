@@ -1,0 +1,2 @@
+defmodule Workout do
+end
