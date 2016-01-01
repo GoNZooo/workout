@@ -28,13 +28,17 @@ defmodule Workout.CLI do
     IO.puts "workout [--help/-h] --distance/-d D.D --time/-t T.T --gear/-g G=3"
   end
 
-  def process_args({[distance: d, time: t, gear: g], ["add"], _}) do
-    IO.puts "Adding: distance: #{d}, time: #{t}, gear: #{g}"
+  def process_args({[distance: dist, time: time, gear: gear], ["add"], _}) do
+    date = get_date
+    append_entry date, time, dist, gear
+    IO.puts "Adding: date: #{date} dist: #{dist}, time: #{time}, gear: #{gear}"
   end
 
-  def process_args({[distance: d, time: t], ["add"], _}) do
-    g = 3
-    IO.puts "Adding: distance: #{d}, time: #{t}, gear: #{g}"
+  def process_args({[distance: dist, time: time], ["add"], _}) do
+    gear = 3
+    date = get_date
+    append_entry date, time, dist, gear
+    IO.puts "Adding: date: #{date} dist: #{dist}, time: #{time}, gear: #{gear}"
   end
 
   def process_args({_, ["log"], _}) do
@@ -50,4 +54,13 @@ defmodule Workout.CLI do
     IO.puts "#{distance} km in #{time} minutes on gear #{gear}"
   end
 
+  defp append_entry(date, time, distance, gear) do
+    output_line = Enum.join [date, time, distance, gear], ";"
+    File.write! Application.get_env(:workout, :log_file), output_line, [:append]
+  end
+
+  defp get_date do
+    {{year, month, day}, {hour, minute, _}} = :calendar.local_time
+    "#{year}-#{month}-#{day} #{hour}:#{minute}"
+  end
 end
