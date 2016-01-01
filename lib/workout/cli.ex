@@ -38,6 +38,16 @@ defmodule Workout.CLI do
   end
 
   def process_args({_, ["log"], _}) do
-    IO.puts "Outputting log"
+    f = File.stream!(Application.get_env(:workout, :log_file))
+    for line <- f, do: output_line line
   end
+
+  defp output_line("\n"), do: :ok
+
+  defp output_line(line) do
+    [date, time, distance, gear] = String.split line, ";"
+    IO.puts "#{IO.ANSI.green}#{date}#{IO.ANSI.reset}"
+    IO.puts "#{distance} km in #{time} minutes on gear #{gear}"
+  end
+
 end
